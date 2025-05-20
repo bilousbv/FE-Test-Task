@@ -12,10 +12,16 @@ window.ImageGallery = (function () {
 
     /**
      * @param {String} query
+     * @param {String} searchModuleId
      */
-    search(query) {
-      const searchResults = this.imagesResolver.search(query);
-      this._onReceiveSearchResult(searchResults);
+    search(query, searchModuleId) {
+      this.abortController?.abort()
+      this.abortController = new AbortController();
+
+      this.imagesResolver.search(query, searchModuleId, this.abortController.signal)
+        .then((results) => {
+          this._onReceiveSearchResult(results);
+        });
     }
 
     addToElement(element) {
@@ -24,7 +30,8 @@ window.ImageGallery = (function () {
 
     _onUserSearch(ev) {
       ev.preventDefault();
-      this.search(this.seachInput.value);
+
+      this.search(this.seachInput.value, this.searchSelect.value);
     }
 
     _onReceiveSearchResult(result) {
@@ -54,6 +61,28 @@ window.ImageGallery = (function () {
       this.seachInput.className = "gallery__search form-control";
       this.seachInput.placeholder = "search by tag";
       this.formGroup.appendChild(this.seachInput);
+
+      this.searchSelect = document.createElement("select");
+      this.searchSelect.className = "gallery__select form-control";
+
+      const sources = [
+        {
+          value: 'local',
+          name: 'Local',
+        },
+        {
+          value: 'pixabay',
+          name: 'Pixabay',
+        }
+      ];
+
+      sources.forEach(({ value, name }) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.innerText = name;
+        this.searchSelect.appendChild(option);
+      })
+      this.formGroup.appendChild(this.searchSelect);
 
       this.searchButton = document.createElement("button");
       this.searchButton.className = "gallery__button btn btn-primary";
