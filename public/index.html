@@ -31,7 +31,13 @@
 <!-- run our code -->
 <script>
   window.onload = function () {
-    const imageResolver = window.imageResolver = new window.ImagesResolver();
+    const config = {
+      pixabay: {
+        apiKey: '8522875-59a2673910903be627161f155',
+        limit: 100
+      }
+    }
+    const imageResolver = window.imageResolver = new window.ImagesResolver(config);
     const gallery = new window.ImageGallery(imageResolver);
     gallery.addToElement(document.querySelector(".js-container"));
 
